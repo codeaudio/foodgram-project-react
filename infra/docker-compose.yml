@@ -27,10 +27,12 @@ services:
     env_file:
       - ../backend/.env
   migration:
-    image: ikapustin7/foodgram
-    command: python manage.py migrate
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    command: bash -c "python manage.py makemigrations && python manage.py migrate"
     depends_on:
-      - db
+      - web
     env_file:
       - ../backend/.env
   frontend:

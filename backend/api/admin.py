@@ -1,8 +1,6 @@
 from django.apps import apps
 from django.contrib import admin
 
-from .models import CustomUser
-
 
 class ListAdminMixin(object):
     def __init__(self, model, admin_site):
