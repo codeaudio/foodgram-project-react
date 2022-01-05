@@ -1,0 +1,87 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Title</title>
+    <style type="text/css">
+        body {
+            background-color: #f8f8f8;
+            font-weight: 200;
+            font-size: 14px;
+        }
+
+        .header {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .title span {
+            color: #150b0b;
+        }
+
+        .center {
+            display: flex;
+            justify-content: space-around;
+            letter-spacing: .05em;
+            color: #292929;
+
+            text-shadow: 0 0 7px #ffffff,
+            0 0 10px #d7d7d7,
+            0 0 21px #b1b1b1,
+            0 0 42px #515151
+
+        }
+
+        .ingredient {
+            padding-left: 30px;
+        }
+
+        .block {
+            padding: 10px 20px 0 20px;
+            text-align: left !important;
+        }
+
+        .hr {
+            box-shadow: 0 0 .2rem #1d1d1d,
+            0 0 .2rem #fff,
+            0 0 2rem #569896,
+            0 0 0.8rem #5a979f,
+            0 0 2.8rem #377599,
+            inset 0 0 1.3rem #000000;
+            border: none;
+            height: 1px;
+            color: #333;
+            background-color: #303032;
+        }
+    </style>
+</head>
+<body>
+<hr class='hr'/>
+<div class="center">
+
+    <p>Shopping List</p>
+
+</div>
+<hr class='hr'/>
+<div class='header'>
+    username: {{ user_username }}
+</div>
+{% for shop_item in shopping_list %}
+    <hr class='hr'/>
+    <div class='block'>
+        recipe id: {{ shop_item.id }} <br> recipe name: {{ shop_item.name }} <br> recipe
+        author: {{ shop_item.author.username }}
+        <br> ingredients:
+        {% for item_shop, item_amount in shop_item.ingredients.all|zip:shop_item.reciperecipeingredients.all %}
+            <p class="ingredient"><br> ingredient id: {{ item_shop.id }} <br> ingredient name: {{ item_shop.name }} <br>
+                ingredient measurement unit:
+                {{ item_shop.measurement_unit }} <br> amount : {{ item_amount.amount }}
+            </p>
+        {% endfor %}
+        <hr class='hr'/>
+    </div>
+{% endfor %}
+
+</body>
+</html>
