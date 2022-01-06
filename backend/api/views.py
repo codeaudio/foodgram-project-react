@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from djoser.views import UserViewSet
 from rest_framework import authentication as auth
 from rest_framework import permissions, generics
-from rest_framework import status, viewsets, mixins
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
@@ -14,16 +14,22 @@ from rest_framework.response import Response
 from rest_framework_simplejwt import authentication as jwt_auth
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .custom_mixin import CustomMixin
 from .filters import RecipeFilter
-from .models import Tag, Ingredient, Recipe, RecipeIngredient, RecipeTag, RecipeFavorite, Subscribe, \
-    ShoppingList
+from .models import (Tag, Ingredient, Recipe,
+                     RecipeIngredient, RecipeTag,
+                     RecipeFavorite, Subscribe,
+                     ShoppingList)
 from .pagination import CustomPagination
 from .permissions import OwnerPermission
 from .response import ShoppingListGetResponse
-from .serializers import CustomSerializer, TagSerializer, \
-    IngredientSerializer, RecipeGetSerializer, RecipePostOrUpdateSerializer, \
-    RecipeFavoriteSerializer, SubscribeSerializer, SubscribeGetSerializer, ShoppingListGetSerializer, ProfileSerializer, \
-    ProfileCreateSerializer
+from .serializers import (CustomSerializer, TagSerializer,
+                          IngredientSerializer, RecipeGetSerializer,
+                          RecipePostOrUpdateSerializer,
+                          RecipeFavoriteSerializer, SubscribeSerializer,
+                          SubscribeGetSerializer,
+                          ShoppingListGetSerializer, ProfileSerializer,
+                          ProfileCreateSerializer)
 from .utils import get_file_from_base64, render_to_pdf
 
 
@@ -55,8 +61,7 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
 
-class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin,
-                        mixins.RetrieveModelMixin):
+class IngredientViewSet(CustomMixin):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
 
@@ -101,7 +106,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = serializer.validated_data.get('ingredients')
         tags = serializer.validated_data.get('tags')
         if 'image' in serializer.validated_data:
-            recipe_instance.image = get_file_from_base64(serializer.validated_data.get('image'))
+            recipe_instance.image = get_file_from_base64(
+                serializer.validated_data.get('image')
+            )
         recipe_instance.text = serializer.validated_data.get('text')
         recipe_instance.name = serializer.validated_data.get('name')
         recipe_instance.cooking_time = serializer.validated_data.get('cooking_time')
@@ -133,7 +140,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         def update_tag():
             obj = RecipeTag.objects.filter(recipe=recipe_instance)
-            recipe_tag = list(recipe_instance.recipetag_set.all().values_list('tag', flat=True))
+            recipe_tag = list(
+                recipe_instance.recipetag_set.all().values_list('tag', flat=True)
+            )
             delete_id = list(set(recipe_tag).difference(
                 tags))
             if len(delete_id) != 0:
@@ -283,9 +292,15 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         recipe = serializer.validated_data.get('recipe')
-        return Response(asdict(ShoppingListGetResponse(recipe.id, recipe.name, self.request.META.get(
-            'wsgi.url_scheme') + '://' + self.request.get_host() + '/mediadjango/' + str(recipe.image),
-                                                       recipe.cooking_time)), status=status.HTTP_200_OK)
+        return Response(asdict(
+            ShoppingListGetResponse(
+                recipe.id,
+                recipe.name,
+                self.request.META.get('wsgi.url_scheme') +
+                '://' + self.request.get_host() + '/mediadjango/' + str(recipe.image),
+                recipe.cooking_time)),
+            status=status.HTTP_200_OK
+        )
 
     def destroy(self, request, *args, **kwargs):
         data = {
@@ -316,8 +331,12 @@ class ShoppingDownloadView(generics.ListAPIView):
         context = {
             'user_username': self.request.user.username,
             'shopping_list': Recipe.objects.filter(
-                id__in=self.queryset.values_list('recipe', flat=True)).select_related('author').prefetch_related(
-                'ingredients'),
+                id__in=self.queryset.values_list('recipe', flat=True)
+            ).select_related(
+                'author'
+            ).prefetch_related(
+                'ingredients'
+            ),
         }
         pdf = render_to_pdf('shopping_list.html', context)
         if pdf:
