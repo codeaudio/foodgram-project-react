@@ -42,7 +42,9 @@ class ProfileSerializer(ModelSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(user=self.context['request'].user.id, author=obj.id).exists()
+        return Subscribe.objects.filter(
+            user=self.context['request'].user.id, author=obj.id
+        ).exists()
 
 
 class ProfileCreateSerializer(ModelSerializer):
@@ -72,7 +74,9 @@ class IngredientRecipeSerializer(ModelSerializer):
 
 
 class RecipeIngredientSerializer(ModelSerializer):
-    id = serializers.serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -92,7 +96,9 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         return True, data
 
     def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(user=self.context['request'].user.id, author=obj.author.id).exists()
+        return Subscribe.objects.filter(
+            user=self.context['request'].user.id, author=obj.author.id
+        ).exists()
 
 
 class RecipeUpdateSerializer(ModelSerializer):
@@ -123,7 +129,9 @@ class RelatedTagRecipeUpdateSerializer(ModelSerializer):
 class RelatedIngredientRecipeSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -131,7 +139,9 @@ class RelatedIngredientRecipeSerializer(ModelSerializer):
 
 
 class RecipeGetSerializer(ModelSerializer):
-    ingredients = RelatedIngredientRecipeSerializer(source='reciperecipeingredients', many=True)
+    ingredients = RelatedIngredientRecipeSerializer(
+        source='reciperecipeingredients', many=True
+    )
     tags = TagSerializer(many=True, read_only=True)
     author = ProfileSerializer(read_only=True)
     is_favorited = serializers.serializers.SerializerMethodField(read_only=True)
@@ -139,14 +149,19 @@ class RecipeGetSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'ingredients', 'tags', 'text', 'name', 'cooking_time', 'author', 'image', 'is_favorited',
+        fields = ('id', 'ingredients', 'tags', 'text', 'name',
+                  'cooking_time', 'author', 'image', 'is_favorited',
                   'is_in_shopping_cart')
 
     def get_is_favorited(self, obj):
-        return RecipeFavorite.objects.filter(user=self.context['request'].user.id, recipe=obj.id).exists()
+        return RecipeFavorite.objects.filter(
+            user=self.context['request'].user.id, recipe=obj.id
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return ShoppingList.objects.filter(user=self.context['request'].user.id, recipe=obj.id).exists()
+        return ShoppingList.objects.filter(
+            user=self.context['request'].user.id, recipe=obj.id
+        ).exists()
 
 
 class RecipeFavoriteSerializer(ModelSerializer):
@@ -194,11 +209,11 @@ class SubscribeGetSerializer(ModelSerializer):
 
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author__in=list(
-            Subscribe.objects.filter(user=self.context['request'].user.id, author=obj.author).values_list('author',
-                                                                                                          flat=True))).values(
-            'id', 'name', 'image', 'cooking_time')[:int(self.context['request'].query_params.get('recipes_limit'))]
-        serialized = json.dumps(list(queryset),
-                                cls=DjangoJSONEncoder)
+            Subscribe.objects.filter(
+                user=self.context['request'].user.id, author=obj.author
+            ).values_list('author',flat=True))
+        ).values('id', 'name', 'image', 'cooking_time')[:int(self.context['request'].query_params.get('recipes_limit'))]
+        serialized = json.dumps(list(queryset),cls=DjangoJSONEncoder)
         result = json.loads(serialized)
         for i in result:
             for k, v in i.items():
@@ -209,7 +224,9 @@ class SubscribeGetSerializer(ModelSerializer):
         return result
 
     def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(user=self.context['request'].user.id, author=obj.author).exists()
+        return Subscribe.objects.filter(
+            user=self.context['request'].user.id, author=obj.author
+        ).exists()
 
 
 class ShoppingListGetSerializer(ModelSerializer):

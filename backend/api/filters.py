@@ -16,14 +16,18 @@ class RecipeFilter(filters.FilterSet):
     def filter_is_favorited(self, queryset, name, value):
         if bool(value) is True:
             return queryset.filter(
-                id__in=list(RecipeFavorite.objects.filter(user=self.request.user.id).values_list('recipe', flat=True))
+                id__in=list(RecipeFavorite.objects.filter(
+                    user=self.request.user.id).values_list('recipe', flat=True)
+                            )
             )
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if bool(value) is True:
             return queryset.filter(
-                id__in=list(ShoppingList.objects.filter(user=self.request.user.id).values_list('recipe', flat=True))
+                id__in=list(ShoppingList.objects.filter(
+                    user=self.request.user.id).values_list('recipe', flat=True)
+                            )
             )
         return queryset
 
