@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
     '127.0.0.1',
@@ -102,7 +102,7 @@ DATABASES = {
         'USER': os.environ.get('POSTGRES_USER', default='postgres'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='postgres'),
         'HOST': os.environ.get('DB_HOST', default='localhost'),
-        'PORT': os.environ.get('DB_PORT', default="5432")
+        'PORT': os.environ.get('DB_PORT', default='5432')
     }
 }
 
@@ -142,8 +142,8 @@ USE_TZ = True
 
 STATIC_URL = '/staticdjango/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticdjango')
-MEDIA_URL = "/mediadjango/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "mediadjango")
+MEDIA_URL = '/mediadjango/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediadjango')
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'

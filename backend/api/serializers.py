@@ -260,7 +260,7 @@ class RelatedIngredientRecipeSerializer(ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeGetSerializer(ModelSerializer):
@@ -317,7 +317,7 @@ class RelatedUserSubscribeGetSerializer(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("id", "email", "username", "first_name", "last_name")
+        fields = ('id', 'email', 'username', 'first_name', 'last_name')
 
 
 class RelatedRecipeSubscribeGetSerializer(ModelSerializer):

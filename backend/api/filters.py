@@ -14,7 +14,7 @@ class RecipeFilter(filters.FilterSet):
     )
 
     def filter_is_favorited(self, queryset, name, value):
-        if bool(value) is True:
+        if value:
             return queryset.filter(
                 id__in=list(RecipeFavorite.objects.filter(
                     user=self.request.user.id).values_list('recipe', flat=True)
@@ -45,7 +45,7 @@ class RecipesLimit(django_filters.Filter):
 
 class RecipesLimitFilterSet(filters.FilterSet):
     recipes = django_filters.NumberFilter(
-        method="filter_recipes",
+        method='filter_recipes',
     )
 
     def filter_recipes(self, queryset, name, value):
