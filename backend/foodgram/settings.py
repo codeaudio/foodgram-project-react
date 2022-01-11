@@ -35,7 +35,6 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -95,24 +94,17 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-if DEBUG is True:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME', default='postgres'),
-            'USER': os.environ.get('POSTGRES_USER', default='postgres'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='postgres'),
-            'HOST': os.environ.get('DB_HOST', default='localhost'),
-            'PORT': os.environ.get('DB_PORT', default="5432")
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', default='postgres'),
+        'USER': os.environ.get('POSTGRES_USER', default='postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='postgres'),
+        'HOST': os.environ.get('DB_HOST', default='localhost'),
+        'PORT': os.environ.get('DB_PORT', default="5432")
     }
-if DEBUG is False:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

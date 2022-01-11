@@ -7,10 +7,10 @@ from .models import Recipe, RecipeFavorite, ShoppingList
 class RecipeFilter(filters.FilterSet):
     tags = filters.Filter(field_name='tags__slug')
     is_favorited = django_filters.NumberFilter(
-        method="filter_is_favorited",
+        method='filter_is_favorited',
     )
     is_in_shopping_cart = django_filters.NumberFilter(
-        method="filter_is_in_shopping_cart",
+        method='filter_is_in_shopping_cart',
     )
 
     def filter_is_favorited(self, queryset, name, value):
@@ -23,7 +23,7 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        if bool(value) is True:
+        if value:
             return queryset.filter(
                 id__in=list(ShoppingList.objects.filter(
                     user=self.request.user.id).values_list('recipe', flat=True)

@@ -6,7 +6,6 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import get_template
-from xhtml2pdf import pisa
 
 
 def get_file_from_base64(serialize_file):
@@ -20,6 +19,9 @@ def get_file_from_base64(serialize_file):
 
 
 def render_to_pdf(template_src, context_dict=None):
+    # ошибка при попытке сделать миграции, если данный импорт глобальный
+    from xhtml2pdf import pisa
+
     if context_dict is None:
         context_dict = {}
     template = get_template(template_src)
