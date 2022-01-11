@@ -7,7 +7,6 @@ import debug_toolbar
 urlpatterns = [
     path('__debug__/', include(debug_toolbar.urls)),
     path('admin/', admin.site.urls),
-    path('api/auth/token/', include('api.urls')),
     path('api/', include('api.urls')),
     path('api/', include('djoser.urls')),
     path('api/', include('djoser.urls.jwt')),

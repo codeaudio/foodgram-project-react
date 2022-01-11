@@ -21,8 +21,7 @@
         }
 
         .center {
-            display: flex;
-            justify-content: space-around;
+            text-align: center;
             letter-spacing: .05em;
             color: #292929;
 
@@ -73,7 +72,7 @@
         recipe id: {{ shop_item.id }} <br> recipe name: {{ shop_item.name }} <br> recipe
         author: {{ shop_item.author.username }}
         <br> ingredients:
-        {% for item_shop, item_amount in shop_item.ingredients.all|zip:shop_item.reciperecipeingredients.all %}
+        {% for item_shop, item_amount in shop_item.ingredients.all|zip:shop_item.recipe_ingredients.all %}
             <p class="ingredient"><br> ingredient id: {{ item_shop.id }} <br> ingredient name: {{ item_shop.name }} <br>
                 ingredient measurement unit:
                 {{ item_shop.measurement_unit }} <br> amount : {{ item_amount.amount }}
