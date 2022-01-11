@@ -15,17 +15,14 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         max_length=150,
-        blank=False,
         verbose_name='Информация',
     )
     last_name = models.CharField(
         max_length=35,
-        blank=False,
         verbose_name='Имя пользователя',
     )
     password = models.CharField(
         max_length=90,
-        blank=False,
         verbose_name='Пароль пользователя',
     )
     USERNAME_FIELD = 'email'
@@ -44,14 +41,16 @@ class CustomUser(AbstractUser):
 class Tag(models.Model):
     name = models.CharField(
         max_length=200,
-        blank=False,
         verbose_name='название тега',
     )
     color = models.CharField(
+        null=True,
         max_length=7,
         verbose_name='цвет в HEX',
     )
     slug = models.CharField(
+        unique=True,
+        null=True,
         max_length=200,
         verbose_name='Уникальный слаг'
     )
@@ -89,7 +88,6 @@ class Recipe(models.Model):
         Ingredient,
         related_name='recipes',
         through='RecipeIngredient',
-        blank=False,
         verbose_name='Ингредиенты рецепта'
     )
     tags = models.ManyToManyField(
@@ -136,7 +134,6 @@ class RecipeIngredient(models.Model):
         verbose_name='Ингредиент'
     )
     amount = models.IntegerField(
-        null=False,
         verbose_name='Кол-во'
     )
 
