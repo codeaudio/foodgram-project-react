@@ -199,11 +199,11 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         )
         cooking_time = self.fields['cooking_time']
         cooking_time_value = cooking_time.to_representation(
-            text.get_attribute(instance)
+            cooking_time.get_attribute(instance)
         )
         image = self.fields['image']
         image_value = image.to_representation(
-            text.get_attribute(instance)
+            image.get_attribute(instance)
         )
         author = self.fields['author']
         author_value = text.to_representation(
