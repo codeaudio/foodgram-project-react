@@ -1,5 +1,6 @@
-from threading import Thread
+import asyncio
 
+from asgiref.sync import sync_to_async
 from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -8,9 +9,10 @@ from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import CustomUser, Tag, Recipe, Ingredient, RecipeIngredient, RecipeFavorite, Subscribe, ShoppingList, \
-    RecipeTag
-from .utils import get_file_from_base64
+from .custom_serializer_field import Base64ImageField
+from .models import (CustomUser, Tag, Recipe, Ingredient,
+                     RecipeIngredient, RecipeFavorite, Subscribe,
+                     ShoppingList, RecipeTag)
 
 
 class CustomSerializer(serializers.TokenObtainPairSerializer, ModelSerializer):
@@ -84,25 +86,16 @@ class RecipeIngredientSerializer(ModelSerializer):
         fields = ('id', 'amount')
 
 
-class RecipeTagSerializer(ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ('id',)
-
-
 class RecipePostOrUpdateSerializer(ModelSerializer):
     ingredients = RecipeIngredientSerializer(source='recipe_ingredients', many=True)
-    tags = serializers.serializers.ListSerializer(child=RecipeTagSerializer())
+    image = Base64ImageField(use_url=True)
+    tags = serializers.serializers.ListField()
     author = ProfileSerializer(read_only=True)
 
     class Meta:
         model = Recipe
-        fields = ('ingredients', 'tags', 'text', 'name', 'cooking_time', 'image', 'author')
-
-    # без переопределния не сохраняется картинка тк тут ругается на картинку
-    # The submitted data was not a file. Check the encoding type on the form
-    def validate_empty_values(self, data):
-        return True, data
+        fields = ('ingredients', 'tags', 'text', 'name',
+                  'cooking_time', 'image', 'author')
 
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
@@ -110,24 +103,26 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         ).exists()
 
     def create(self, validated_data):
-        ingredients = validated_data.get('ingredients')
+        ingredients = validated_data.get('recipe_ingredients')
         tags = validated_data.get('tags')
         recipe_instance = Recipe(
             text=validated_data.get('text'),
             name=validated_data.get('name'),
             cooking_time=validated_data.get('cooking_time'),
             author=self.context['request'].user,
-            image=get_file_from_base64(validated_data.get('image'))
+            image=validated_data.get('image')
         )
         recipe_instance.save()
 
+        @sync_to_async
         def create_ing():
             for ingredient in ingredients:
                 RecipeIngredient(
                     recipe=recipe_instance,
-                    ingredient=get_object_or_404(Ingredient, id=ingredient.get('id')),
-                    amount=ingredient.get('amount')).save()
+                    ingredient=ingredient['id'],
+                    amount=ingredient['amount']).save()
 
+        @sync_to_async
         def create_tag():
             for tag in tags:
                 RecipeTag(
@@ -135,45 +130,40 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                     tag=get_object_or_404(Tag, id=tag)
                 ).save()
 
-        def create_rows():
-            th_ing, th_tag = Thread(target=create_ing), Thread(target=create_tag)
-            th_ing.start(), th_tag.start()
-            th_ing.join(), th_tag.join()
-
-        create_rows()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(
+            create_ing(),
+            create_tag()
+        ))
         return recipe_instance
 
     def update(self, instance, validated_data):
-        ingredients = validated_data.get('ingredients')
+        ingredients = validated_data.get('recipe_ingredients')
         tags = validated_data.get('tags')
-        if 'image' in validated_data:
-            instance.image = get_file_from_base64(
-                validated_data.get('image')
-            )
-        instance.text = validated_data.get('text')
-        instance.name = validated_data.get('name')
-        instance.cooking_time = validated_data.get('cooking_time')
-        instance.save()
+        recipe_data = dict(filter(lambda kv: kv[0] not in ['recipe_ingredients', 'tags'], validated_data.items()))
+        instance = super(RecipePostOrUpdateSerializer, self).update(instance, recipe_data)
 
+        @sync_to_async
         def update_ing():
             obj = RecipeIngredient.objects.filter(recipe=instance)
             obj.exclude(
-                ingredient__in=[element.get('id') for element in ingredients]
+                ingredient__in=[element['id'].id for element in ingredients]
             ).delete()
             for ingredient in ingredients:
-                current_obj = obj.filter(ingredient=ingredient.get('id'))
+                current_obj = obj.filter(ingredient=ingredient['id'].id)
                 if current_obj.exists():
                     current_obj.update(
-                        ingredient=ingredient.get('id'),
-                        amount=ingredient.get('amount')
+                        ingredient=ingredient['id'].id,
+                        amount=ingredient['amount']
                     )
                 else:
                     RecipeIngredient(
                         recipe=instance,
-                        ingredient=get_object_or_404(Ingredient, id=ingredient.get('id')),
-                        amount=ingredient.get('amount')
+                        ingredient=ingredient['id'],
+                        amount=ingredient['amount']
                     ).save()
 
+        @sync_to_async
         def update_tag():
             recipe_tag = instance.recipe_tag.all()
             recipe_tag_values = recipe_tag.values_list('tag', flat=True)
@@ -191,22 +181,17 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                             recipe=instance,
                             tag=get_object_or_404(Tag, id=tag)).save()
 
-        def update_rows():
-            th_ing, th_tag = Thread(target=update_ing), Thread(target=update_tag)
-            th_ing.start(), th_tag.start()
-            th_ing.join(), th_tag.join()
-
-        update_rows()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(
+            update_ing(),
+            update_tag()
+        ))
         return instance
 
     def to_representation(self, instance):
         ingredients = self.fields['ingredients']
         ingredients_value = ingredients.to_representation(
             ingredients.get_attribute(instance)
-        )
-        tags = self.fields['tags']
-        tags_value = tags.to_representation(
-            tags.get_attribute(instance)
         )
         text = self.fields['text']
         text_value = text.to_representation(
@@ -226,7 +211,7 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         )
         return {
             'ingredients': ingredients_value,
-            'tags': [item.get('id') for item in tags_value],
+            'tags': instance.recipe_tag.all().values_list('tag', flat=True),
             'text': text_value,
             'name': instance.name,
             'cooking_time': cooking_time_value,
