@@ -107,7 +107,10 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         data = {
             'recipe': self.kwargs.get('recipe_id'),
             'user': request.user.id,
-            'author': get_object_or_404(Recipe, id=self.kwargs.get('recipe_id')).author.id
+            'author': get_object_or_404(
+                Recipe,
+                id=self.kwargs.get('recipe_id')
+            ).author.id
         }
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
@@ -120,7 +123,10 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         data = {
             'recipe': self.kwargs.get('recipe_id'),
             'user': request.user.id,
-            'author': get_object_or_404(Recipe, id=self.kwargs.get('recipe_id')).author.id
+            'author': get_object_or_404(
+                Recipe,
+                id=self.kwargs.get('recipe_id')
+            ).author.id
         }
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
@@ -144,8 +150,9 @@ class SubscribeViewSet(CustomCreateDestroyViewSet):
             'user': request.user.id,
             'author': self.kwargs.get('author_id')
         }
-        return super(SubscribeViewSet, self).create(
-            request, data, self.response_serializer_class, 'author', *args, **kwargs
+        return super().create(
+            request, data, self.response_serializer_class,
+            'author', *args, **kwargs
         )
 
     def destroy(self, request, *args, **kwargs):
@@ -157,7 +164,7 @@ class SubscribeViewSet(CustomCreateDestroyViewSet):
             user=data.get('user'),
             author=data.get('author')
         )
-        return super(SubscribeViewSet, self).destroy(
+        return super().destroy(
             request, data, obj, *args, **kwargs
         )
 
@@ -185,8 +192,9 @@ class ShoppingListViewSet(CustomCreateDestroyViewSet):
             'user': request.user.id,
             'recipe': self.kwargs.get('recipe_id')
         }
-        return super(ShoppingListViewSet, self).create(
-            request, data, self.response_serializer_class, 'recipe', *args, **kwargs
+        return super().create(
+            request, data, self.response_serializer_class,
+            'recipe', *args, **kwargs
         )
 
     def destroy(self, request, *args, **kwargs):

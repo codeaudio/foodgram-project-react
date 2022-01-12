@@ -16,12 +16,12 @@ class Converter:
         return ContentFile(
             base64.b64decode(imgstr),
             name='temp.' + imgstr[:15] +
-                 ''.join(random.choices(string.ascii_lowercase, k=15)) + '.' + ext
+                 ''.join(random.choices(string.ascii_lowercase, k=15)) +
+                 '.' + ext
         )
 
 
 def render_to_pdf(template_src, context_dict=None):
-    # ошибка при попытке сделать миграции, если данный импорт глобальный
     from xhtml2pdf import pisa
 
     if context_dict is None:

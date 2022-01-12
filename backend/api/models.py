@@ -140,7 +140,9 @@ class RecipeIngredient(models.Model):
     class Meta:
         db_table = 'recipe_ingredient'
         constraints = [
-            UniqueConstraint(fields=['recipe', 'ingredient'], name='recipe_ingredient_uniq')
+            UniqueConstraint(
+                fields=['recipe', 'ingredient'], name='recipe_ingredient_uniq'
+            )
         ]
         verbose_name = 'Ингрединт рецепта'
         verbose_name_plural = 'Ингрединты рецепта'
@@ -198,7 +200,9 @@ class RecipeFavorite(models.Model):
     class Meta:
         db_table = 'recipe_favorite'
         constraints = [
-            UniqueConstraint(fields=['author', 'user', 'recipe'], name='favorite_uniq')
+            UniqueConstraint(
+                fields=['author', 'user', 'recipe'], name='favorite_uniq'
+            )
         ]
         verbose_name = 'Рецепт в избранном'
         verbose_name_plural = 'Рецепты в избранном'

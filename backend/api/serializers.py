@@ -34,7 +34,9 @@ class CustomSerializer(serializers.TokenObtainPairSerializer, ModelSerializer):
             return {
                 'auth_token': str(refresh.access_token)
             }
-        return Response({'auth_token': 'null'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {'auth_token': 'null'}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class ProfileSerializer(ModelSerializer):
@@ -42,7 +44,8 @@ class ProfileSerializer(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
@@ -87,7 +90,9 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 
 class RecipePostOrUpdateSerializer(ModelSerializer):
-    ingredients = RecipeIngredientSerializer(source='recipe_ingredients', many=True)
+    ingredients = RecipeIngredientSerializer(
+        source='recipe_ingredients', many=True
+    )
     image = Base64ImageField(use_url=True)
     tags = serializers.serializers.ListField()
     author = ProfileSerializer(read_only=True)
@@ -140,8 +145,13 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         ingredients = validated_data.get('recipe_ingredients')
         tags = validated_data.get('tags')
-        recipe_data = dict(filter(lambda kv: kv[0] not in ['recipe_ingredients', 'tags'], validated_data.items()))
-        instance = super(RecipePostOrUpdateSerializer, self).update(instance, recipe_data)
+        recipe_data = dict(
+            filter(
+                lambda kv: kv[0] not in ['recipe_ingredients', 'tags'],
+                validated_data.items()
+            )
+        )
+        instance = super().update(instance, recipe_data)
 
         @sync_to_async
         def update_ing():
@@ -254,8 +264,12 @@ class RecipeGetSerializer(ModelSerializer):
     )
     tags = TagSerializer(many=True, read_only=True)
     author = ProfileSerializer(read_only=True)
-    is_favorited = serializers.serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.serializers.SerializerMethodField(
+        read_only=True
+    )
+    is_in_shopping_cart = serializers.serializers.SerializerMethodField(
+        read_only=True
+    )
 
     class Meta:
         model = Recipe
@@ -296,9 +310,15 @@ class SubscribeSerializer(ModelSerializer):
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='author.id')
     email = serializers.serializers.ReadOnlyField(source='author.email')
-    username = serializers.serializers.ReadOnlyField(source='ingredient.username')
-    first_name = serializers.serializers.ReadOnlyField(source='ingredient.first_name')
-    last_name = serializers.serializers.ReadOnlyField(source='ingredient.last_name')
+    username = serializers.serializers.ReadOnlyField(
+        source='ingredient.username'
+    )
+    first_name = serializers.serializers.ReadOnlyField(
+        source='ingredient.first_name'
+    )
+    last_name = serializers.serializers.ReadOnlyField(
+        source='ingredient.last_name'
+    )
 
     class Meta:
         model = CustomUser
@@ -350,8 +370,12 @@ class SubscribeGetSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='author.id')
     email = serializers.serializers.ReadOnlyField(source='author.email')
     username = serializers.serializers.ReadOnlyField(source='author.username')
-    first_name = serializers.serializers.ReadOnlyField(source='author.first_name')
-    last_name = serializers.serializers.ReadOnlyField(source='author.last_name')
+    first_name = serializers.serializers.ReadOnlyField(
+        source='author.first_name'
+    )
+    last_name = serializers.serializers.ReadOnlyField(
+        source='author.last_name'
+    )
     is_subscribed = serializers.serializers.SerializerMethodField()
     recipes = serializers.serializers.SerializerMethodField()
     recipes_count = serializers.serializers.SerializerMethodField()
@@ -362,13 +386,15 @@ class SubscribeGetSerializer(ModelSerializer):
                   'last_name', 'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
-        queryset = obj.author.recipes.all()[:int(self.context['request'].query_params.get('recipes_limit'))]
+        limit = int(self.context['request'].query_params.get('recipes_limit'))
+        queryset = obj.author.recipes.all()[:limit]
         return RecipeSubscribeGetSerializer(
             queryset, many=True, context={'request': self.context['request']}
         ).data
 
     def get_recipes_count(self, obj):
-        qs = obj.author.recipes.all()[:int(self.context['request'].query_params.get('recipes_limit'))]
+        limit = int(self.context['request'].query_params.get('recipes_limit'))
+        qs = obj.author.recipes.all()[:limit]
         return qs.count()
 
     def get_is_subscribed(self, obj):
