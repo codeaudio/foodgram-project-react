@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt import authentication as jwt_auth
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .custom_mixin import CustomMixin
-from .filters import RecipeFilter
+from .custom_mixin import CustomMixin, CustomCreateDestroyViewSet
+from .filters import RecipeFilter, IngredientFilterSet
 from .models import (Tag, Ingredient, Recipe,
                      RecipeFavorite, Subscribe,
                      ShoppingList)
@@ -25,7 +25,8 @@ from .serializers import (CustomSerializer, TagSerializer,
                           RecipeFavoriteSerializer, SubscribeSerializer,
                           SubscribeGetSerializer,
                           ShoppingListGetSerializer, ProfileSerializer,
-                          ProfileCreateSerializer, RecipeResponseSerializer, SubscribeResponseSerializer)
+                          ProfileCreateSerializer, RecipeResponseSerializer,
+                          SubscribeResponseSerializer)
 from .utils import render_to_pdf
 
 
@@ -60,6 +61,7 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(CustomMixin):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    filterset_class = IngredientFilterSet
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -130,10 +132,11 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SubscribeViewSet(viewsets.ModelViewSet):
+class SubscribeViewSet(CustomCreateDestroyViewSet):
     queryset = Subscribe.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = SubscribeSerializer
+    response_serializer_class = SubscribeResponseSerializer
     http_method_names = ['post', 'delete']
 
     def create(self, request, *args, **kwargs):
@@ -141,25 +144,22 @@ class SubscribeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'author': self.kwargs.get('author_id')
         }
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(SubscribeResponseSerializer(
-            serializer.validated_data.get('author'),
-            context={'request': request}).data, status=status.HTTP_200_OK)
+        return super(SubscribeViewSet, self).create(
+            request, data, self.response_serializer_class, 'author', *args, **kwargs
+        )
 
     def destroy(self, request, *args, **kwargs):
         data = {
             'user': request.user.id,
             'author': self.kwargs.get('author_id')
         }
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.queryset.filter(
-            user=serializer.validated_data.get('user'),
-            author=serializer.validated_data.get('author')
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        obj = self.queryset.filter(
+            user=data.get('user'),
+            author=data.get('author')
+        )
+        return super(SubscribeViewSet, self).destroy(
+            request, data, obj, *args, **kwargs
+        )
 
 
 class SubscribeListView(generics.ListAPIView):
@@ -173,10 +173,11 @@ class SubscribeListView(generics.ListAPIView):
         )
 
 
-class ShoppingListViewSet(viewsets.ModelViewSet):
+class ShoppingListViewSet(CustomCreateDestroyViewSet):
     queryset = ShoppingList.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ShoppingListGetSerializer
+    response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
 
     def create(self, request, *args, **kwargs):
@@ -184,14 +185,8 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': self.kwargs.get('recipe_id')
         }
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            RecipeResponseSerializer(
-                serializer.validated_data.get('recipe'),
-                context={'request': request}).data,
-            status=status.HTTP_200_OK
+        return super(ShoppingListViewSet, self).create(
+            request, data, self.response_serializer_class, 'recipe', *args, **kwargs
         )
 
     def destroy(self, request, *args, **kwargs):
@@ -199,13 +194,13 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': self.kwargs.get('recipe_id')
         }
-        serializer = self.get_serializer_class()(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.queryset.filter(
-            user=serializer.validated_data.get('user'),
-            recipe=serializer.validated_data.get('recipe')
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        obj = self.queryset.filter(
+            user=data.get('user'),
+            recipe=data.get('recipe')
+        )
+        return super(ShoppingListViewSet, self).destroy(
+            request, data, obj, *args, **kwargs
+        )
 
 
 class ShoppingDownloadView(generics.ListAPIView):

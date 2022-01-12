@@ -18,12 +18,12 @@ urlpatterns = [
     path('recipes/<str:recipe_id>/favorite/', FavoriteViewSet.as_view({'post': 'create', 'delete': 'destroy'}), name='favorite'),
     path('users/<str:author_id>/subscribe/', SubscribeViewSet.as_view({'post': 'create', 'delete': 'destroy'}), name='subscribe'),
     path(
-        'login/',
+        'auth/token/login/',
         CustomTokenObtainPairView.as_view(),
         name='token_obtain_pair'
     ),
     path(
-        'logout/',
+        'auth/token/logout/',
         logout_user,
         name='logout'
     ),

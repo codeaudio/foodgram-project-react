@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-from .models import Recipe, RecipeFavorite, ShoppingList
+from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
 
 
 class RecipeFilter(filters.FilterSet):
@@ -33,7 +33,7 @@ class RecipeFilter(filters.FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ['tags', 'is_favorited']
+        fields = ('tags', 'is_favorited')
 
 
 class RecipesLimit(django_filters.Filter):
@@ -50,3 +50,11 @@ class RecipesLimitFilterSet(filters.FilterSet):
 
     def filter_recipes(self, queryset, name, value):
         return queryset[:value]
+
+
+class IngredientFilterSet(filters.FilterSet):
+    name = filters.Filter(field_name='name', lookup_expr='contains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
