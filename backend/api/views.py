@@ -106,6 +106,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     queryset = RecipeFavorite.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecipeFavoriteSerializer
+    response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
 
     def create(self, request, *args, **kwargs):
@@ -120,9 +121,10 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(RecipeResponseSerializer(
+        return Response(self.response_serializer_class(
             serializer.validated_data.get('recipe'),
-            context={'request': request}).data, status=status.HTTP_200_OK)
+            context={'request': request}).data, status=status.HTTP_200_OK
+                        )
 
     def destroy(self, request, *args, **kwargs):
         data = {

@@ -2,14 +2,15 @@ import asyncio
 
 from asgiref.sync import sync_to_async
 from django.core.validators import validate_email
+from djoser.serializers import UserCreateSerializer
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .custom_serializer_field import Base64ImageField
+from .exception import CustomApiException
 from .models import (CustomUser, Tag, Recipe, Ingredient,
                      RecipeIngredient, RecipeFavorite, Subscribe,
                      ShoppingList, RecipeTag)
@@ -34,8 +35,9 @@ class CustomSerializer(serializers.TokenObtainPairSerializer, ModelSerializer):
             return {
                 'auth_token': str(refresh.access_token)
             }
-        return Response(
-            {'auth_token': 'null'}, status=status.HTTP_401_UNAUTHORIZED
+        raise CustomApiException(
+            detail={'auth_token': 'null'},
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
 
 
@@ -53,7 +55,7 @@ class ProfileSerializer(ModelSerializer):
         ).exists()
 
 
-class ProfileCreateSerializer(ModelSerializer):
+class ProfileCreateSerializer(UserCreateSerializer):
     class Meta:
         model = CustomUser
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
