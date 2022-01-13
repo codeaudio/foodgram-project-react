@@ -32,6 +32,11 @@ from .utils import render_to_pdf
 
 class CustomUserViewSet(UserViewSet):
 
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [permissions.AllowAny()]
+        return super().get_permissions()
+
     def get_serializer_class(self):
         if self.action == 'list':
             self.pagination_class = CustomPagination

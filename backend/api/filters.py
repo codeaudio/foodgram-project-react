@@ -6,6 +6,7 @@ from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
 
 class RecipeFilter(filters.FilterSet):
     tags = filters.Filter(field_name='tags__slug')
+    author = filters.Filter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
     )
@@ -33,7 +34,7 @@ class RecipeFilter(filters.FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'is_favorited')
+        fields = ('tags', 'is_favorited', 'author')
 
 
 class RecipesLimit(django_filters.Filter):
