@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['loclahost', 'foodgram.hopto.org']
+ALLOWED_HOSTS = ['loclahost', 'foodgram.hopto.org', '127.0.0.1']
 
 INTERNAL_IPS = [
     '127.0.0.1',
