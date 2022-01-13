@@ -54,11 +54,9 @@ class ProfileSerializer(ModelSerializer):
 
 
 class ProfileCreateSerializer(ModelSerializer):
-    is_subscribed = serializers.serializers.SerializerMethodField()
-
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'first_name', 'last_name')
+        fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
 
 class TagSerializer(ModelSerializer):
