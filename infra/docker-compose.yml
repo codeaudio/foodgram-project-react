@@ -52,9 +52,10 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
       - static_value:/var/html/staticdjango/
       - media_value:/var/html/mediadjango/
-      - ./certbot/www:/var/www/certbot/:ro
     depends_on:
       - web
   certbot:
