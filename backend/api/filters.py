@@ -5,7 +5,7 @@ from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
 
 
 class RecipeFilter(filters.FilterSet):
-    tags = filters.Filter(field_name='tags__slug', lookup_expr='in')
+    tags = filters.Filter(field_name='tags__slug', lookup_expr='incontains')
     author = filters.Filter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
