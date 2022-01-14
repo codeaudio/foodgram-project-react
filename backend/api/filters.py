@@ -1,12 +1,11 @@
 import django_filters
-from django.db.models import Prefetch
 from django_filters import rest_framework as filters
 
-from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient, Tag
+from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
 
 
 class RecipeFilter(filters.FilterSet):
-    tags = filters.Filter(method='filter_tags')
+    tags = filters.CharFilter(field_name='tags__slug')
     author = filters.Filter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
@@ -17,20 +16,7 @@ class RecipeFilter(filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                id__in=list(RecipeFavorite.objects.filter(
-                    user=self.request.user.id).values_list('recipe', flat=True)
-                            )
-            )
-        return queryset
-
-    def filter_tags(self, queryset, name, value):
-        if value:
-            return queryset.prefetch_related(Prefetch(
-                "tags",
-                queryset=Tag.objects.filter(slug__in=value),
-                to_attr="tags_attr"
-            ))
+            return queryset.filter(favorited__user=self.request.user)
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
