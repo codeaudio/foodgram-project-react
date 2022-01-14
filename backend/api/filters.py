@@ -5,7 +5,7 @@ from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
 
 
 class RecipeFilter(filters.FilterSet):
-    tags = filters.CharFilter(field_name='tags__slug', lookup_expr='exact')
+    tags = filters.Filter(field_name='tags__slug', lookup_expr='in')
     author = filters.Filter(field_name='author__id')
     is_favorited = django_filters.NumberFilter(
         method='filter_is_favorited',
@@ -16,7 +16,7 @@ class RecipeFilter(filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         if value:
-            return queryset.filter(favorited__user=self.request.user)
+            return queryset.filter(favorited__user=self.request.user.id)
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
