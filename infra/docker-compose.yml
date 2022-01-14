@@ -19,20 +19,14 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     restart: always
+    command: bash -c "python manage.py makemigrations &&
+      python manage.py migrate &&
+      gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - static_value:/code/staticdjango/
       - media_value:/code/mediadjango/
     depends_on:
       - db
-    env_file:
-      - ../backend/.env
-  migration:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    command: bash -c "python manage.py makemigrations && python manage.py migrate"
-    depends_on:
-      - web
     env_file:
       - ../backend/.env
   frontend:
