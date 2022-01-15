@@ -119,12 +119,6 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
             image=validated_data.get('image')
         )
         recipe_instance.save()
-        dict(
-            filter(
-                lambda kv: kv[0] not in ['recipe_ingredients', 'tags'],
-                validated_data.items()
-            )
-        )
 
         @sync_to_async
         def create_ing():
