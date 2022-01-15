@@ -6,6 +6,7 @@ from djoser.serializers import UserCreateSerializer
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -118,10 +119,16 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
             image=validated_data.get('image')
         )
         recipe_instance.save()
+        dict(
+            filter(
+                lambda kv: kv[0] not in ['recipe_ingredients', 'tags'],
+                validated_data.items()
+            )
+        )
 
         @sync_to_async
         def create_ing():
-            for ingredient in ingredients:
+            for ingredient in filter(lambda dct: dict(filter(lambda kv: kv[1]['id'], dct)), ingredients):
                 RecipeIngredient.objects.get_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
