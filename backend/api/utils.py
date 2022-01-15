@@ -28,13 +28,13 @@ def fetch_pdf_resources(uri, rel):
         return os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ''))
 
 
-def render_to_pdf(template_src, context_dict=None):
+def render_to_pdf(template_src, context=None):
     from xhtml2pdf import pisa
 
-    if context_dict is None:
-        context_dict = {}
+    if context is None:
+        context = {}
     template = get_template(template_src)
-    html = template.render(context_dict)
+    html = template.render(context)
     result = BytesIO()
     pdf = pisa.pisaDocument(BytesIO(html.encode('utf-8')), result, link_callback=fetch_pdf_resources)
     if not pdf.err:
