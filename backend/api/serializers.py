@@ -128,7 +128,7 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
 
         @sync_to_async
         def create_ing():
-            for ingredient in filter(lambda dct: dict(filter(lambda kv: kv[1]['id'], dct)), ingredients):
+            for ingredient in list({v['id']: v for v in ingredients}.values()):
                 RecipeIngredient.objects.get_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
