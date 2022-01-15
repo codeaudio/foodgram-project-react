@@ -125,7 +125,7 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                 RecipeIngredient.objects.get_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
-                    amount=ingredient['amount']}
+                    amount=ingredient['amount']
                 )
 
         @sync_to_async
