@@ -129,13 +129,12 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
 
         @sync_to_async
         def create_ing():
-            if unique_ing:
-                for ingredient in unique_ing:
-                    RecipeIngredient.objects.get_or_create(
-                        recipe=recipe_instance,
-                        ingredient=ingredient['id'],
-                        amount=ingredient['amount']
-                    )
+            for ingredient in unique_ing:
+                RecipeIngredient.objects.get_or_create(
+                    recipe=recipe_instance,
+                    ingredient=ingredient['id'],
+                    amount=ingredient['amount']
+                )
 
         @sync_to_async
         def create_tag():
