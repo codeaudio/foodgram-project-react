@@ -122,10 +122,10 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         @sync_to_async
         def create_ing():
             for ingredient in ingredients:
-                RecipeIngredient.objects.update_or_create(
+                RecipeIngredient.objects.get_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
-                    amount=ingredient['amount'], defaults={'amount': ingredient['amount']}
+                    amount=ingredient['amount']}
                 )
 
         @sync_to_async
