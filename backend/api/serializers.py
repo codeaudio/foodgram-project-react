@@ -122,6 +122,7 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         @sync_to_async
         def create_ing():
             for ingredient in ingredients:
+                raise Exception(ingredient)
                 RecipeIngredient.objects.get_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
