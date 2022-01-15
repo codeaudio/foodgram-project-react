@@ -125,7 +125,8 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                 RecipeIngredient.objects.update_or_create(
                     recipe=recipe_instance,
                     ingredient=ingredient['id'],
-                    amount=ingredient['amount'])
+                    amount=ingredient['amount'], defaults={'amount': ingredient['amount']}
+                )
 
         @sync_to_async
         def create_tag():
