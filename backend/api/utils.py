@@ -1,8 +1,10 @@
 import base64
+import os
 import random
 import string
 from io import BytesIO
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -21,6 +23,11 @@ class Converter:
         )
 
 
+def fetch_pdf_resources(uri, rel):
+    if uri.find(settings.STATIC_URL) != -1:
+        return os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ''))
+
+
 def render_to_pdf(template_src, context_dict=None):
     from xhtml2pdf import pisa
 
@@ -29,7 +36,7 @@ def render_to_pdf(template_src, context_dict=None):
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode('utf-16')), result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode('utf-8')), result, link_callback=fetch_pdf_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
