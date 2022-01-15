@@ -102,7 +102,10 @@ class Recipe(models.Model):
     )
     text = models.TextField(verbose_name='Текст')
     image = models.ImageField(verbose_name='Изображение')
-    cooking_time = models.IntegerField(verbose_name='Время приготовления')
+    cooking_time = models.PositiveIntegerField(
+        verbose_name='Время приготовления',
+
+    )
     author = models.ForeignKey(
         CustomUser,
         on_delete=CASCADE,
