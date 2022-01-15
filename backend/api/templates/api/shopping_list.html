@@ -5,10 +5,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Title</title>
     <style type="text/css">
+        @font-face {
+            font-family: Arial;
+            src: url(/staticdjango/admin/fonts/arial.ttf);
+        }
+
         body {
             background-color: #f8f8f8;
             font-weight: 200;
             font-size: 14px;
+            font-family: Arial, sans-serif;
         }
 
         .header {
@@ -58,9 +64,7 @@
 <body>
 <hr class='hr'/>
 <div class="center">
-
     <p>Shopping List</p>
-
 </div>
 <hr class='hr'/>
 <div class='header'>
@@ -81,6 +85,5 @@
         <hr class='hr'/>
     </div>
 {% endfor %}
-
 </body>
 </html>

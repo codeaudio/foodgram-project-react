@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-from .models import Recipe, RecipeFavorite, ShoppingList, Ingredient
+from .models import Recipe, Ingredient
 
 
 class RecipeFilter(filters.FilterSet):
@@ -16,41 +16,17 @@ class RecipeFilter(filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                id__in=list(RecipeFavorite.objects.filter(
-                    user=self.request.user.id).values_list('recipe', flat=True)
-                            )
-            )
+            return queryset.filter(recipe_favorite__user=self.request.user)
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                id__in=list(ShoppingList.objects.filter(
-                    user=self.request.user.id).values_list('recipe', flat=True)
-                            )
-            )
+            return queryset.filter(shopped__user=self.request.user.id)
         return queryset
 
     class Meta:
         model = Recipe
         fields = ('tags', 'is_favorited', 'author')
-
-
-class RecipesLimit(django_filters.Filter):
-    def filter(self, queryset, value):
-        if value is not None:
-            return queryset[:value]
-        return queryset
-
-
-class RecipesLimitFilterSet(filters.FilterSet):
-    recipes = django_filters.NumberFilter(
-        method='filter_recipes',
-    )
-
-    def filter_recipes(self, queryset, name, value):
-        return queryset[:value]
 
 
 class IngredientFilterSet(filters.FilterSet):
