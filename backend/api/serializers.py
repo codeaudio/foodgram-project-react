@@ -1,4 +1,5 @@
 import asyncio
+from abc import ABC
 
 from asgiref.sync import sync_to_async
 from django.core.validators import validate_email
@@ -80,9 +81,6 @@ class IngredientRecipeSerializer(ModelSerializer):
 
 
 class RecipeIngredientSerializer(ModelSerializer):
-    id = serializers.serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
 
     class Meta:
         model = RecipeIngredient
@@ -91,7 +89,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 class RecipePostOrUpdateSerializer(ModelSerializer):
     ingredients = RecipeIngredientSerializer(
-        source='recipe_ingredients', many=True
+        source='ingredients', many=True
     )
     image = Base64ImageField(use_url=True)
     tags = serializers.serializers.ListField()
