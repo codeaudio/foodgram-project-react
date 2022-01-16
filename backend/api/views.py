@@ -18,13 +18,13 @@ from .models import (Tag, Ingredient, Recipe,
                      RecipeFavorite, Subscribe,
                      ShoppingList)
 from .pagination import CustomPagination
-from .permissions import OwnerPermission
+from .permissions import OwnerPermission, IsNotSelfPermission
 from .serializers import (CustomSerializer, TagSerializer,
                           IngredientSerializer, RecipeGetSerializer,
                           RecipePostOrUpdateSerializer,
                           RecipeFavoriteSerializer, SubscribeSerializer,
                           SubscribeGetSerializer,
-                          ShoppingListGetSerializer, ProfileSerializer,
+                          ShoppingListSerializer, ProfileSerializer,
                           ProfileCreateSerializer, RecipeResponseSerializer,
                           SubscribeResponseSerializer)
 from .utils import render_to_pdf
@@ -118,7 +118,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 id=self.kwargs.get('recipe_id')
             ).author.id
         }
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(self.response_serializer_class(
@@ -135,7 +135,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 id=self.kwargs.get('recipe_id')
             ).author.id
         }
-        serializer = self.get_serializer_class()(data=data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.queryset.filter(
             recipe=serializer.validated_data.get('recipe'),
@@ -147,7 +147,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
 class SubscribeViewSet(CustomCreateDestroyViewSet):
     queryset = Subscribe.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsNotSelfPermission]
     serializer_class = SubscribeSerializer
     response_serializer_class = SubscribeResponseSerializer
     http_method_names = ['post', 'delete']
@@ -190,7 +190,7 @@ class SubscribeListView(generics.ListAPIView):
 class ShoppingListViewSet(CustomCreateDestroyViewSet):
     queryset = ShoppingList.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ShoppingListGetSerializer
+    serializer_class = ShoppingListSerializer
     response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
 
@@ -220,14 +220,14 @@ class ShoppingListViewSet(CustomCreateDestroyViewSet):
 
 class ShoppingDownloadView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ShoppingListGetSerializer
+    serializer_class = ShoppingListSerializer
     pagination_class = CustomPagination
 
     def get(self, request, *args, **kwargs):
         context = {
             'user_username': self.request.user.username,
             'shopping_list': Recipe.objects.filter(
-                id=F('shopped__recipe'), shopped__user_id=self.request.user.id
+                id=F('shopped__recipe'), shopped__user=self.request.user
             ).select_related(
                 'author'
             ).prefetch_related(
