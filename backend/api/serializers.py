@@ -81,7 +81,9 @@ class IngredientRecipeSerializer(ModelSerializer):
 
 
 class RecipeIngredientSerializer(ModelSerializer):
-    id = serializers.serializers.PrimaryKeyRelatedField()
+    id = serializers.serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -90,7 +92,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 class RecipePostOrUpdateSerializer(ModelSerializer):
     ingredients = RecipeIngredientSerializer(
-        source='recipe_ingredients', many=True
+     many=True
     )
     image = Base64ImageField(use_url=True)
     tags = serializers.serializers.ListField()
