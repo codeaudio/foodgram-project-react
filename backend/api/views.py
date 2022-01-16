@@ -109,15 +109,16 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeFavoriteSerializer
     response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
+    validators = [
+        UniqueTogetherValidator(
+            queryset=RecipeFavorite.objects.all(),
+            fields=('user', 'author', 'recipe'),
+        )
+    ]
 
     def get_serializer_class(self):
         if self.action == 'create':
-            self.serializer_class.Meta.validators = [
-                UniqueTogetherValidator(
-                    queryset=RecipeFavorite.objects.all(),
-                    fields=('user', 'author', 'recipe'),
-                )
-            ]
+            self.serializer_class.Meta.validators = self.validators
             return self.serializer_class
         self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
@@ -136,8 +137,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(self.response_serializer_class(
             serializer.validated_data.get('recipe'),
-            context={'request': request}).data, status=status.HTTP_200_OK
-                        )
+            context={'request': request}).data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         data = {
@@ -164,15 +164,16 @@ class SubscribeViewSet(CustomCreateDestroyViewSet):
     serializer_class = SubscribeSerializer
     response_serializer_class = SubscribeResponseSerializer
     http_method_names = ['post', 'delete']
+    validators = [
+        UniqueTogetherValidator(
+            queryset=Subscribe.objects.all(),
+            fields=('user', 'author')
+        )
+    ]
 
     def get_serializer_class(self):
         if self.action == 'create':
-            self.serializer_class.Meta.validators = [
-                UniqueTogetherValidator(
-                    queryset=Subscribe.objects.all(),
-                    fields=('user', 'author')
-                )
-            ]
+            self.serializer_class.Meta.validators = self.validators
             return self.serializer_class
         self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
@@ -218,15 +219,16 @@ class ShoppingListViewSet(CustomCreateDestroyViewSet):
     serializer_class = ShoppingListSerializer
     response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
+    validators = [
+        UniqueTogetherValidator(
+            queryset=ShoppingList.objects.all(),
+            fields=('user', 'recipe'),
+        )
+    ]
 
     def get_serializer_class(self):
         if self.action == 'create':
-            self.serializer_class.Meta.validators = [
-                UniqueTogetherValidator(
-                    queryset=ShoppingList.objects.all(),
-                    fields=('user', 'recipe'),
-                )
-            ]
+            self.serializer_class.Meta.validators = self.validators
             return self.serializer_class
         self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
