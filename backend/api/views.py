@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt import authentication as jwt_auth
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -109,6 +110,17 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            self.serializer_class.Meta.validators = [
+                UniqueTogetherValidator(
+                    queryset=RecipeFavorite.objects.all(),
+                    fields=('user', 'author', 'recipe'),
+                )
+            ]
+            return self.serializer_class
+        return super().get_serializer_class()
+
     def create(self, request, *args, **kwargs):
         data = {
             'recipe': self.kwargs.get('recipe_id'),
@@ -152,6 +164,17 @@ class SubscribeViewSet(CustomCreateDestroyViewSet):
     response_serializer_class = SubscribeResponseSerializer
     http_method_names = ['post', 'delete']
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            self.serializer_class.Meta.validators = [
+                UniqueTogetherValidator(
+                    queryset=Subscribe.objects.all(),
+                    fields=('user', 'author')
+                )
+            ]
+            return self.serializer_class
+        return super().get_serializer_class()
+
     def create(self, request, *args, **kwargs):
         data = {
             'user': request.user.id,
@@ -193,6 +216,17 @@ class ShoppingListViewSet(CustomCreateDestroyViewSet):
     serializer_class = ShoppingListSerializer
     response_serializer_class = RecipeResponseSerializer
     http_method_names = ['post', 'delete']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            self.serializer_class.Meta.validators = [
+                UniqueTogetherValidator(
+                    queryset=ShoppingList.objects.all(),
+                    fields=('user', 'recipe'),
+                )
+            ]
+            return self.serializer_class
+        return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
         data = {
