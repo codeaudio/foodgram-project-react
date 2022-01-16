@@ -89,7 +89,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 class RecipePostOrUpdateSerializer(ModelSerializer):
     ingredients = RecipeIngredientSerializer(
-        source='ingredients', many=True
+        source='recipe_ingredients', many=True
     )
     image = Base64ImageField(use_url=True)
     tags = serializers.serializers.ListField()
