@@ -303,36 +303,13 @@ class RecipeFavoriteSerializer(ModelSerializer):
     class Meta:
         model = RecipeFavorite
         fields = '__all__'
-        validators = [
-            serializers.serializers.UniqueTogetherValidator(
-                queryset=RecipeFavorite.objects.all(),
-                fields=('user', 'author', 'recipe'),
-            )
-        ]
 
 
 class SubscribeSerializer(ModelSerializer):
     class Meta:
         model = Subscribe
         fields = '__all__'
-        validators = [
-            serializers.serializers.UniqueTogetherValidator(
-                queryset=Subscribe.objects.all(),
-                fields=('user', 'author'),
-            )
-        ]
 
-    def get_validators(self):
-        validators = getattr(getattr(self, 'Meta', None), 'validators', None)
-        if validators is not None:
-            return list(validators)
-
-        if self.context['request'].method == 'POST':
-            return (
-                    self.get_unique_together_validators() +
-                    self.get_unique_for_date_validators()
-            )
-        return self.get_unique_for_date_validators()
 
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='author.id')
@@ -434,9 +411,3 @@ class ShoppingListSerializer(ModelSerializer):
     class Meta:
         model = ShoppingList
         fields = ('user', 'recipe')
-        validators = [
-            serializers.serializers.UniqueTogetherValidator(
-                queryset=ShoppingList.objects.all(),
-                fields=('user', 'recipe'),
-            )
-        ]
