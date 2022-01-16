@@ -306,7 +306,7 @@ class RecipeFavoriteSerializer(ModelSerializer):
         validators = [
             serializers.serializers.UniqueTogetherValidator(
                 queryset=RecipeFavorite.objects.all(),
-                fields=('user', 'author'),
+                fields=('user', 'author', 'recipe'),
             )
         ]
 
