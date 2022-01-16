@@ -303,14 +303,24 @@ class RecipeFavoriteSerializer(ModelSerializer):
     class Meta:
         model = RecipeFavorite
         fields = '__all__'
-        unique_together = ('user', 'author')
+        validators = [
+            serializers.serializers.UniqueTogetherValidator(
+                queryset=RecipeFavorite.objects.all(),
+                fields=('user', 'author'),
+            )
+        ]
 
 
 class SubscribeSerializer(ModelSerializer):
     class Meta:
         model = Subscribe
         fields = '__all__'
-        unique_together = ('user', 'author')
+        validators = [
+            serializers.serializers.UniqueTogetherValidator(
+                queryset=Subscribe.objects.all(),
+                fields=('user', 'author'),
+            )
+        ]
 
 
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
@@ -413,4 +423,9 @@ class ShoppingListSerializer(ModelSerializer):
     class Meta:
         model = ShoppingList
         fields = ('user', 'recipe')
-        unique_together = ('user', 'author')
+        validators = [
+            serializers.serializers.UniqueTogetherValidator(
+                queryset=ShoppingList.objects.all(),
+                fields=('user', 'recipe'),
+            )
+        ]
