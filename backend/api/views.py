@@ -119,6 +119,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 )
             ]
             return self.serializer_class
+        self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
@@ -173,6 +174,7 @@ class SubscribeViewSet(CustomCreateDestroyViewSet):
                 )
             ]
             return self.serializer_class
+        self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
@@ -226,6 +228,7 @@ class ShoppingListViewSet(CustomCreateDestroyViewSet):
                 )
             ]
             return self.serializer_class
+        self.serializer_class.Meta.validators = []
         return super().get_serializer_class()
 
     def create(self, request, *args, **kwargs):
