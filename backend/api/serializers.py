@@ -132,10 +132,10 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
         @sync_to_async
         def create_tag():
             for tag in tags:
-                RecipeTag(
+                RecipeTag.objects.create(
                     recipe=recipe_instance,
                     tag=get_object_or_404(Tag, id=tag)
-                ).save()
+                )
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(asyncio.gather(
@@ -169,11 +169,11 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                         amount=ingredient['amount']
                     )
                 else:
-                    RecipeIngredient(
+                    RecipeIngredient.objects.create(
                         recipe=instance,
                         ingredient=ingredient['id'],
                         amount=ingredient['amount']
-                    ).save()
+                    )
 
         @sync_to_async
         def update_tag():
@@ -189,9 +189,10 @@ class RecipePostOrUpdateSerializer(ModelSerializer):
                     if current_obj.exists():
                         current_obj.update(tag=get_object_or_404(Tag, id=tag))
                     else:
-                        RecipeTag(
+                        RecipeTag.objects.create(
                             recipe=instance,
-                            tag=get_object_or_404(Tag, id=tag)).save()
+                            tag=get_object_or_404(Tag, id=tag)
+                        )
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(asyncio.gather(
