@@ -322,6 +322,12 @@ class SubscribeSerializer(ModelSerializer):
             )
         ]
 
+    def get_validators(self):
+        raise Exception(self.get_unique_together_validators() +
+            self.get_unique_for_date_validators())
+        if self.context['request'].method == 'POST':
+            return 1
+
 
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='author.id')
