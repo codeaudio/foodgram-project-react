@@ -303,12 +303,14 @@ class RecipeFavoriteSerializer(ModelSerializer):
     class Meta:
         model = RecipeFavorite
         fields = '__all__'
+        unique_together = ('user', 'author')
 
 
 class SubscribeSerializer(ModelSerializer):
     class Meta:
         model = Subscribe
         fields = '__all__'
+        unique_together = ('user', 'author')
 
 
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
@@ -407,7 +409,8 @@ class SubscribeGetSerializer(ModelSerializer):
         ).exists()
 
 
-class ShoppingListGetSerializer(ModelSerializer):
+class ShoppingListSerializer(ModelSerializer):
     class Meta:
         model = ShoppingList
         fields = ('user', 'recipe')
+        unique_together = ('user', 'author')
