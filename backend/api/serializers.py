@@ -323,11 +323,16 @@ class SubscribeSerializer(ModelSerializer):
         ]
 
     def get_validators(self):
-        raise Exception(self.get_unique_together_validators() +
-            self.get_unique_for_date_validators())
-        if self.context['request'].method == 'POST':
-            return 1
+        validators = getattr(getattr(self, 'Meta', None), 'validators', None)
+        if validators is not None:
+            return list(validators)
 
+        if self.context['request'].method == 'POST':
+            return (
+                    self.get_unique_together_validators() +
+                    self.get_unique_for_date_validators()
+            )
+        return self.get_unique_for_date_validators()
 
 class RelatedUserSubscribeGetSerializer(ModelSerializer):
     id = serializers.serializers.ReadOnlyField(source='author.id')
