@@ -184,4 +184,8 @@ class Migration(migrations.Migration):
             model_name='recipefavorite',
             constraint=models.UniqueConstraint(fields=('author', 'user', 'recipe'), name='favorite_uniq'),
         ),
+        migrations.RunSQL(
+            "INSERT INTO tag (name, color, slug) values ('fastfood', '#E26C2D', '#fastfood');"
+            "INSERT INTO ingredient (name, measurement_unit) values ('тесто', ' кг');"
+        )
     ]

@@ -1,5 +1,4 @@
 import asyncio
-from abc import ABC
 
 from asgiref.sync import sync_to_async
 from django.core.validators import validate_email
